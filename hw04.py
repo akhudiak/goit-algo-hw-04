@@ -1,30 +1,47 @@
+from functools import wraps
+
+
+def input_error(func):
+    @wraps(func)
+    def inner(args, contacts):
+        try:
+            return func(args, contacts)
+        except ValueError:
+            return "Give me name and phone please"
+        except IndexError:
+            return "Enter user name"
+        except KeyError:
+            return "Contact is not exists"
+    
+    return inner
+
+
 def parse_input(user_input: str):
     cmd, *args = user_input.split(" ")
     cmd = cmd.strip().lower()
     return cmd, *args
 
 
+@input_error
 def add_contact(args, contacts):
     name, phone = args
     contacts[name] = phone
-    return "Contact added."
+    return "Contact added"
 
 
+@input_error
 def change_contact(args, contacts):
     name, phone = args
-    if name in contacts:
-        contacts[name] = phone
-        return "Contact updated."
-    else:
-        return "Contact is not exists."
+    if name not in contacts:
+        raise KeyError
+    contacts[name] = phone
+    return "Contact updated"
     
 
+@input_error
 def show_phone(args, contacts):
     name = args[0]
-    if name in contacts:
-        return contacts[name]
-    else:
-        return "Contact is not exists."
+    return contacts[name]
     
 
 def show_all(args, contacts):
